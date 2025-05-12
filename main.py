@@ -17,6 +17,7 @@ bot = telebot.TeleBot(bot_token)
 
 @bot.message_handler(chat_types=['channel'], func=lambda message: str(message.chat.id) == source_channel_id)
 def repost_message(message):
+    print(f"Получено новое сообщение в канале {source_channel_id}: {message.text[:50] if message.text else message.caption[:50] if message.caption else 'Медиа'}")
     try:
         if message.text:
             bot.send_message(target_channel_id, message.text)
@@ -24,8 +25,7 @@ def repost_message(message):
             bot.send_photo(target_channel_id, message.photo[-1].file_id, caption=message.caption)
         elif message.video:
             bot.send_video(target_channel_id, message.video.file_id, caption=message.caption)
-        # Добавьте обработку других типов медиа, если необходимо
-        print(f"Переслано сообщение из {source_channel_id} в {target_channel_id}")
+        print(f"Успешно переслано сообщение из {source_channel_id} в {target_channel_id}")
     except Exception as e:
         print(f"Ошибка при пересылке: {e}")
 
