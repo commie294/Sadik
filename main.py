@@ -2,41 +2,27 @@ import asyncio
 import os
 import sys
 from dotenv import load_dotenv
-from telethon import TelegramClient, events
+from telethon import TelegramClient
 
 load_dotenv()
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-source_channel = os.getenv('SOURCE_CHANNEL')
-target_channel = os.getenv('TARGET_CHANNEL')
 
-if not all([api_id, api_hash, bot_token, source_channel, target_channel]):
-    print("Ошибка: Пожалуйста, заполните все необходимые переменные окружения в файле .env")
+if not all([api_id, api_hash, bot_token]):
+    print("Ошибка: Пожалуйста, заполните API ID, API HASH и BOT TOKEN в файле .env")
     sys.exit(1)
 
 client = TelegramClient('bot_session', int(api_id), api_hash).start(bot_token=bot_token)
 
 async def main():
-    @client.on(events.NewMessage(chats=source_channel))
-    async def repost(event):
-        try:
-            await client.send_message(
-                entity=int(target_channel),
-                message=event.message.text,
-                file=event.message.media if event.message.media else None,
-                link_preview=False
-            )
-            print(f"Переслано сообщение из {source_channel} в {target_channel}: {event.message.text[:50]}...")
-        except Exception as e:
-            print(f"Произошла ошибка при пересылке сообщения: {e}")
-
-    print("Бот запущен и ожидает новые сообщения...")
     try:
-        await client.run_until_disconnected()
+        await client.connect()
+        print("Бот успешно подключен. Ожидаю...")
+        await asyncio.sleep(30)  # Подождать 30 секунд
     except Exception as e:
-        print(f"Произошла ошибка на верхнем уровне: {e}")
+        print(f"Произошла ошибка: {e}")
     finally:
         await client.disconnect()
 
