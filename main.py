@@ -3,6 +3,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from telethon import TelegramClient
+from telethon.sessions import MemorySession
 
 load_dotenv()
 
@@ -14,7 +15,7 @@ if not all([api_id, api_hash, bot_token]):
     print("Ошибка: Пожалуйста, заполните API ID, API HASH и BOT TOKEN в файле .env")
     sys.exit(1)
 
-client = TelegramClient('bot_session', int(api_id), api_hash).start(bot_token=bot_token)
+client = TelegramClient(MemorySession(), int(api_id), api_hash).start(bot_token=bot_token)
 
 async def main():
     try:
