@@ -3,6 +3,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
+from telethon.errors import ConnectionError
 
 # Загрузка переменных окружения из файла .env
 load_dotenv()
@@ -11,8 +12,6 @@ load_dotenv()
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-
-# Получение значений каналов из переменных окружения
 source_channel = os.getenv('SOURCE_CHANNEL')
 target_channel = os.getenv('TARGET_CHANNEL')
 
@@ -30,17 +29,25 @@ async def main():
         """Пересылает новые сообщения из исходного канала в целевой."""
         try:
             await client.send_message(
-                entity=target_channel,
+                entity=int(target_channel),
                 message=event.message.text,
                 file=event.message.media if event.message.media else None,
                 link_preview=False
             )
             print(f"Переслано сообщение из {source_channel} в {target_channel}: {event.message.text[:50]}...")
+        except ConnectionError as e:
+            print(f"Ошибка подключения к Telegram: {e}")
+            # Можно добавить здесь попытку переподключения или другую логику обработки
         except Exception as e:
             print(f"Ошибка при пересылке сообщения: {e}")
 
     print("Бот запущен и ожидает новые сообщения...")
-    await client.run_until_disconnected()
+    try:
+        await client.run_until_disconnected()
+    except Exception as e:
+        print(f"Произошла ошибка на верхнем уровне: {e}")
+    finally:
+        await client.disconnect()
 
 if __name__ == '__main__':
     asyncio.run(main())
