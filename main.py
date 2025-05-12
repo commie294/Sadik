@@ -3,30 +3,24 @@ import os
 import sys
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
-from telethon.errors import ConnectionError
 
-# Загрузка переменных окружения из файла .env
 load_dotenv()
 
-# Получение значений переменных окружения
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 source_channel = os.getenv('SOURCE_CHANNEL')
 target_channel = os.getenv('TARGET_CHANNEL')
 
-# Проверка наличия необходимых переменных окружения
 if not all([api_id, api_hash, bot_token, source_channel, target_channel]):
     print("Ошибка: Пожалуйста, заполните все необходимые переменные окружения в файле .env")
     sys.exit(1)
 
-# Создаем клиент Telegram
 client = TelegramClient('bot_session', int(api_id), api_hash).start(bot_token=bot_token)
 
 async def main():
     @client.on(events.NewMessage(chats=source_channel))
     async def repost(event):
-        """Пересылает новые сообщения из исходного канала в целевой."""
         try:
             await client.send_message(
                 entity=int(target_channel),
@@ -35,11 +29,8 @@ async def main():
                 link_preview=False
             )
             print(f"Переслано сообщение из {source_channel} в {target_channel}: {event.message.text[:50]}...")
-        except ConnectionError as e:
-            print(f"Ошибка подключения к Telegram: {e}")
-            # Можно добавить здесь попытку переподключения или другую логику обработки
         except Exception as e:
-            print(f"Ошибка при пересылке сообщения: {e}")
+            print(f"Произошла ошибка при пересылке сообщения: {e}")
 
     print("Бот запущен и ожидает новые сообщения...")
     try:
