@@ -245,7 +245,7 @@ def handle_message(message):
     except Exception as e:
         logging.error(f"❌ Общая ошибка: {str(e)}")
 
-if name == 'main':
+if __name__ == '__main__':
     logging.info("===== БОТ ЗАПУЩЕН =====")
     try:
         bot.polling(none_stop=True, interval=2)
